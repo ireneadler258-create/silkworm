@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+*.egg-info/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.sw?
+*.suo
+*.ntvs*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# K230 specific
+*.pth
+*.onnx
+models/

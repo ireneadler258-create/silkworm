@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2024-01-01" agent="draw.io" version="21.0.0">
+  <diagram name="主程序流程图" id="main-flow">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- 启动 -->
+        <mxCell id="start" value="系统启动" style="ellipse;whiteSpace=wrap;html=1;fillColor=#4CAF50;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="440" y="30" width="120" height="60" as="geometry" />
+        </mxCell>
+        
+        <!-- 启动延迟 -->
+        <mxCell id="delay" value="启动延迟 5秒" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFC107;" vertex="1" parent="1">
+          <mxGeometry x="440" y="120" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="start" target="delay">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 初始化看门狗 -->
+        <mxCell id="init_wdt" value="初始化看门狗" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFC107;" vertex="1" parent="1">
+          <mxGeometry x="440" y="200" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="delay" target="init_wdt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 初始化WiFi -->
+        <mxCell id="init_wifi" value="初始化WiFi连接" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFC107;" vertex="1" parent="1">
+          <mxGeometry x="440" y="280" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="init_wdt" target="init_wifi">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 初始化MQTT -->
+        <mxCell id="init_mqtt" value="初始化MQTT连接" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFC107;" vertex="1" parent="1">
+          <mxGeometry x="440" y="360" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="init_wifi" target="init_mqtt">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 初始化执行器 -->
+        <mxCell id="init_hw" value="初始化执行器&#xa;风扇/加热器/雾化器/报警灯/RGB灯" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFC107;" vertex="1" parent="1">
+          <mxGeometry x="400" y="440" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="init_mqtt" target="init_hw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 初始化传感器 -->
+        <mxCell id="init_sensor" value="初始化传感器引脚" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFC107;" vertex="1" parent="1">
+          <mxGeometry x="440" y="530" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="init_hw" target="init_sensor">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 创建控制器 -->
+        <mxCell id="init_ctrl" value="创建智能控制器" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFC107;" vertex="1" parent="1">
+          <mxGeometry x="440" y="610" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="init_sensor" target="init_ctrl">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 主循环 -->
+        <mxCell id="main_loop" value="【主循环开始】" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#2196F3;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="440" y="690" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="init_ctrl" target="main_loop">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 步骤1-3 -->
+        <mxCell id="step1" value="1. 喂狗&#xa;2. 确保WiFi/MQTT连接&#xa;3. 检查云端指令" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;" vertex="1" parent="1">
+          <mxGeometry x="440" y="780" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="main_loop" target="step1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 步骤4 -->
+        <mxCell id="step4" value="4. 读取快速传感器&#xa;K230/DHT22/BH1750/&#xa;MQ137/土壤/红外" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;" vertex="1" parent="1">
+          <mxGeometry x="440" y="880" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="step1" target="step4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 步骤5-7 -->
+        <mxCell id="step57" value="5. 智能控制决策&#xa;6. 打印状态&#xa;7. 语音报警检查" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E1BEE7;" vertex="1" parent="1">
+          <mxGeometry x="440" y="980" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="step4" target="step57">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 判断 -->
+        <mxCell id="check" value="距上次上报&#xa;>= 1秒?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#FF9800;" vertex="1" parent="1">
+          <mxGeometry x="460" y="1080" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="step57" target="check">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 读取慢速传感器 -->
+        <mxCell id="read_slow" value="读取慢速传感器&#xa;CO2 + GPS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;" vertex="1" parent="1">
+          <mxGeometry x="440" y="1180" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="check" target="read_slow">
+          <mxGeometry relative="1" as="geometry" />
+          <mxCell id="e13_label" value="是" style="edgeLabel;html=1;align=center;verticalAlign=middle;" vertex="1" connectable="0" parent="e13">
+            <mxGeometry x="-0.1" relative="1" as="geometry" />
+          </mxCell>
+        </mxCell>
+        
+        <!-- 构建数据包 -->
+        <mxCell id="build" value="构建数据包" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C8E6C9;" vertex="1" parent="1">
+          <mxGeometry x="440" y="1260" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="read_slow" target="build">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 发布 -->
+        <mxCell id="publish" value="MQTT 发布到阿里云" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#FFFFFF;" vertex="1" parent="1">
+          <mxGeometry x="440" y="1340" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="build" target="publish">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 休眠 -->
+        <mxCell id="sleep" value="休眠等待 0.5秒" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#BBDEFB;" vertex="1" parent="1">
+          <x:mxCell x="440" y="1420" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="publish" target="sleep">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        
+        <!-- 返回循环 -->
+        <mxCell id="e17" style="edgeStyle=orthogonalEdgeStyle;rounded=1;" edge="1" parent="1" source="sleep" target="main_loop">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="340" y="1445" />
+              <mxPoint x="340" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+        <!-- 否分支 -->
+        <mxCell id="skip" value="跳过" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0E0E0;" vertex="1" parent="1">
+          <mxGeometry x="600" y="1095" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="e18" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="check" target="skip">
+          <mxGeometry relative="1" as="geometry" />
+          <mxCell id="e18_label" value="否" style="edgeLabel;html=1;align=center;verticalAlign=middle;" vertex="1" connectable="0" parent="e18">
+            <mxGeometry x="-0.1" relative="1" as="geometry" />
+          </mxCell>
+        </mxCell>
+        <mxCell id="e19" style="edgeStyle=orthogonalEdgeStyle;rounded=1;" edge="1" parent="1" source="skip" target="sleep">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="630" y="1445" />
+              <mxPoint x="500" y="1445" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

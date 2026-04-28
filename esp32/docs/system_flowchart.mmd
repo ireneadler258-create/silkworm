@@ -1,0 +1,91 @@
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+flowchart TB
+    classDef start fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,rx:5,ry:5
+    classDef proc fill:#fff8e1,stroke:#ff8f00,stroke-width:1px
+    classDef dec fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px
+    classDef io fill:#fce4ec,stroke:#c2185b,stroke-width:1px
+    classDef esp fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    classDef cloud fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    classDef app fill:#fff8e1,stroke:#ff8f00,stroke-width:2px
+
+    subgraph ESP["ESP32 端"]
+        subgraph INIT1["系统初始化"]
+            S["系统上电"]:::start --> D["延时5秒"]:::proc --> G["初始化看门狗"]:::proc
+            G --> W["初始化WiFi"]:::io --> M["初始化MQTT"]:::io
+            M --> A["初始化执行器"]:::proc --> I["初始化传感器"]:::proc
+            I --> C["创建智能控制器"]:::proc --> V["初始化语音"]:::proc
+            V --> P["打印启动"]:::io --> L(("进入主循环")):::start
+        end
+
+        subgraph LOOP1["主循环"]
+            L --> F["1. 喂狗"]:::proc
+            F --> N{"2. WiFi检查?"}:::dec
+            N -->|否| SK["跳过MQTT"]:::proc
+            N -->|是| CK["3. 检查MQTT"]:::io
+            CK --> HM{"4. 收到指令?"}:::dec
+            HM -->|是| CB["5. 执行回调"]:::proc
+            HM -->|否| RS["6. 读取传感器"]:::proc
+            CB --> RT["6. 回发状态"]:::io --> RS
+            RS --> UC["7. 智能控制"]:::proc
+            UC --> ST["8. 获取状态"]:::proc --> PL["9. 打印日志"]:::io
+            PL --> VA["10. 语音报警"]:::proc
+            VA --> TM{"11. 时间检查"}:::dec
+            TM --> RP{"12. 满足上报?"}:::dec
+            RP -->|否| SL["14. 休眠"]:::proc
+            RP -->|是| RL["13. 读慢速"]:::proc
+            RL --> PK["14. 构建数据包"]:::proc --> PB["15. 发布数据"]:::io
+            PB --> UT["16. 更新时间"]:::proc --> SL
+            SL --> LoopEnd[("返回循环")]:::start --> F
+        end
+
+        subgraph CB["MQTT回调"]
+            C1(("触发")):::start --> C2["解码"]:::proc
+            C2 --> C3["JSON解析"]:::proc --> COk{"成功?"}:::dec
+            COk -->|否| CE["错误"]:::io --> CEnd(("结束"))
+            COk -->|是| CP["提取params"]:::proc --> CT{"命令类型"}:::dec
+            CT -->|Mode| CM["设置模式"]:::proc --> CEnd
+            CT -->|Thresh| CU["更新阈值"]:::proc --> CEnd
+            CT -->|Act| CA["控制执行器"]:::proc --> CEnd
+        end
+
+        CB -.-> CB
+        style INIT1 fill:#e3f2fd,stroke:#1565c0
+        style LOOP1 fill:#e3f2fd,stroke:#1565c0
+        style CB fill:#e3f2fd,stroke:#1565c0
+    end
+
+    subgraph CLOUD["阿里云 端"]
+        CLOUD1["MQTT接收"]:::io --> CLOUD2["数据校验"]:::dec
+        CLOUD2 -->|无效| CLOUD3["丢弃/日志"]:::io
+        CLOUD2 -->|有效| CLOUD4["存储数据库"]:::io
+        CLOUD4 --> CLOUD5["API服务"]:::proc --> CLOUD6["规则引擎"]:::proc
+        CLOUD5 --> CLOUD7["转发订阅"]:::io --> CLOUD8["设备影子"]:::io
+        style CLOUD1 fill:#e8f5e9,stroke:#2e7d32
+        style CLOUD2 fill:#e8f5e9,stroke:#2e7d32
+        style CLOUD5 fill:#e8f5e9,stroke:#2e7d32
+    end
+
+    subgraph APP["App 端"]
+        APP1["MQTT订阅"]:::proc --> APP2["接收数据"]:::proc --> APP3["UI显示"]:::io
+        APP3 --> APP4["告警检测"]:::dec --> APP5{"异常?"}:::dec
+        APP5 -->|是| APP6["弹窗+振动"]:::io
+        APP5 -->|否| APP7["正常显示"]:::io
+        APP3 --> APP8["历史图表"]:::proc --> APP9["API拉取"]:::io
+        APP9 --> APP10["本地缓存"]:::io --> APP11["图表显示"]:::io
+        APP8 --> APP12["病蚕图片"]:::proc --> APP13["URL下载"]:::io
+        APP13 --> APP14["本地存储"]:::io --> APP15["图片浏览"]:::io
+        style APP1 fill:#fff8e1,stroke:#ff8f00
+        style APP3 fill:#fff8e1,stroke:#ff8f00
+        style APP8 fill:#fff8e1,stroke:#ff8f00
+    end
+
+    %% 数据流向线
+    PB -.->|"上报(MQTT)"| CLOUD1
+    CLOUD7 -.->|"转发(MQTT)"| APP2
+
+    PB -->|"下发(MQTT)"| APP8
+    APP8 -->|"控制指令"| CLOUD1
+
+    style ESP fill:#e3f2fd,stroke:#1565c0,stroke-width:3px
+    style CLOUD fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+    style APP fill:#fff8e1,stroke:#ff8f00,stroke-width:3px

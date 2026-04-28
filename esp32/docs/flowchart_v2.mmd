@@ -1,0 +1,65 @@
+%%{init: {'flowchart': {'curve': 'linear', 'rankSpacing': 80, 'nodeSpacing': 60}}}%%
+flowchart TB
+    %% 节点样式
+    classDef start fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,rx:5,ry:5
+    classDef proc fill:#fff8e1,stroke:#ff8f00,stroke-width:1px
+    classDef dec fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px
+    classDef io fill:#fce4ec,stroke:#c2185b,stroke-width:1px
+    classDef sub fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px
+
+    %%===========================================
+    %% 一、系统初始化 (垂直直线)
+    %%===========================================
+    ST["系统上电"]:::start --> DLY["延时等待5秒"]:::proc --> WDT["初始化看门狗<br/>Guardian"]:::proc
+    WDT --> WF["初始化WiFi<br/>连接AP"]:::io --> MQ["初始化MQTT<br/>连接阿里云"]:::io
+    MQ --> AC["初始化执行器<br/>风扇/加热器/雾化器<br/>报警灯/RGB灯"]:::proc
+    AC --> IR["初始化IR传感器"]:::proc --> CT["创建智能控制器<br/>SmartController"]:::proc
+    CT --> VC["初始化语音报警<br/>VoiceAlert"]:::proc --> PI["打印启动信息"]:::io
+    PI --> LP[("进入主循环")]:::start
+
+    %%===========================================
+    %% 二、主循环 (垂直直线 + 分支)
+    %%===========================================
+    LP --> FD["1. 喂狗<br/>guardian.feed()"]:::proc
+    FD --> NW{"2. WiFi<br/>正常?"}:::dec
+    NW -->|否| SM["跳过MQTT"]:::proc
+    NW -->|是| CM["3. 检查MQTT<br/>check_msg()"]:::io
+    CM --> HM{"4. 收到<br/>指令?"}:::dec
+    HM -->|是| CB["5. MQTT回调<br/>handle_command()"]:::sub
+    HM -->|否| RS["6. 读取快速传感器<br/>DHT22/BH1750<br/>MQ137/土壤/IR/K230"]:::proc
+    CB --> RT["6. 回发状态"]:::io --> RS
+    RS --> UC["7. 智能控制<br/>brain.update()"]:::sub
+    UC --> GS["8. 获取状态"]:::proc --> PL["9. 打印日志"]:::io
+    PL --> VA["10. 语音报警<br/>check_and_alert()"]:::sub
+    VA --> TC["11. 时间检查<br/>上报间隔"]:::dec
+    TC --> SR{"12. 满足<br/>上报?"}:::dec
+    SR -->|否| SL["14. 休眠计算"]:::proc
+    SR -->|是| RL["13. 读取慢速<br/>CO2/GPS"]:::proc
+    RL --> PK["14. 构建数据包"]:::proc --> PB["15. 发布数据"]:::io
+    PB --> UT["16. 更新时间"]:::proc --> SL
+    SL --> LP2[("返回循环")]:::start --> FD
+
+    %%===========================================
+    %% 三、MQTT回调 (子图)
+    %%===========================================
+    subgraph CBK[MQTT回调处理]
+        C1(("触发")):::start --> C2["解码Topic/Msg"]:::proc
+        C2 --> C3["JSON解析"]:::proc --> CJ{"成功?"}:::dec
+        CJ -->|否| CL["错误日志"]:::io --> C9(("结束"))
+        CJ -->|是| CP["提取params"]:::proc --> TY{"类型?"}:::dec
+        TY -->|Mode| CM["设置模式"]:::proc --> C9
+        TY -->|Thresh| CU["更新阈值"]:::proc --> C9
+        TY -->|Act| CA["控制执行器"]:::proc --> C9
+    end
+
+    CB -.-> CBK
+
+    %%===========================================
+    %% 四、异常处理
+    %%===========================================
+    subgraph EXT[异常处理]
+        X1{"异常捕获"}:::dec -->|KeyInt| X2["断开连接"]:::proc --> X3(("退出")):::start
+        X1 -->|Exception| XL["错误日志"]:::io --> XS["延时1秒"]:::proc --> FD
+    end
+
+    LP -.-> X1

@@ -1,0 +1,79 @@
+{
+	"pages": [
+		{
+			"path": "pages/dashboard/index",
+			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#F1F5F9"
+			}
+		},
+		{
+			"path": "pages/control/index",
+			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#F1F5F9"
+			}
+		},
+		{
+			"path": "pages/history/index",
+			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#F1F5F9"
+			}
+		},
+		{
+			"path": "pages/alarm/index",
+			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#F1F5F9"
+			}
+		},
+		{
+			"path": "pages/sick-history/index",
+			"style": {
+				"navigationStyle": "custom",
+				"backgroundColor": "#F1F5F9"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarBackgroundColor": "#FFFFFF",
+		"backgroundColor": "#F1F5F9",
+		"app-plus": {
+			"bounce": "none" 
+		}
+	},
+	"tabBar": {
+		"color": "#94A3B8",
+		"selectedColor": "#22C55E",
+		"borderStyle": "white",
+		"backgroundColor": "#FFFFFF",
+		"list": [
+			{
+				"pagePath": "pages/dashboard/index",
+				"text": "总览",
+				"iconPath": "static/tabbar/home.png",
+				"selectedIconPath": "static/tabbar/home-active.png"
+			},
+			{
+				"pagePath": "pages/control/index",
+				"text": "控制",
+				"iconPath": "static/tabbar/control.png",
+				"selectedIconPath": "static/tabbar/control-active.png"
+			},
+			{
+				"pagePath": "pages/history/index",
+				"text": "历史",
+				"iconPath": "static/tabbar/history.png",
+				"selectedIconPath": "static/tabbar/history-active.png"
+			},
+			{
+				"pagePath": "pages/alarm/index",
+				"text": "日志",
+				"iconPath": "static/tabbar/alarm.png",
+				"selectedIconPath": "static/tabbar/alarm-active.png"
+			}
+		]
+	}
+}

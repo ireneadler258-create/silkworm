@@ -1,0 +1,30 @@
+# Datasets - large training data (not included)
+datasets/
+runs/
+sample_visualizations/
+
+# Model weights (optional - add to ignore if large)
+*.pt
+
+# K230 model files
+*.kmodel
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# UniApp
+node_modules/
+unpackage/
+dist/
+*.local

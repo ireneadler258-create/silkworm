@@ -1,0 +1,306 @@
+<template>
+	<view class="page-container">
+		<view class="header-section" :style="{ paddingTop: statusBarHeight + 'px' }">
+			<view class="header-top">
+				<text class="main-title">
+					{{ lang.isEnglish ? 'Overview' : '总览' }}
+				</text>
+				<view class="lang-toggle" @click="lang.isEnglish = !lang.isEnglish">
+					<text class="lang-text">{{ lang.isEnglish ? '中' : 'EN' }}</text>
+				</view>
+			</view>
+			<text class="sub-title">
+				{{ lang.isEnglish ? 'Real-time monitoring of environment' : '环境实时监控' }}
+			</text>
+		</view>
+
+		<!-- 1. ESP32 设备状态卡片 (Uiverse.io 风格) -->
+		<view class="status-card" :class="{ pressed: isCardPressed }" @tap="onCardTap" @touchstart="isCardPressed = true" @touchend="isCardPressed = false">
+			<view class="status-card-img" :class="{ online: store.status.esp32Online, pressed: isCardPressed }">
+				<view class="status-dot" :class="{ online: store.status.esp32Online }"></view>
+			</view>
+			<view class="status-card-textBox">
+				<view class="status-card-textContent">
+					<text class="status-card-title">{{ lang.isEnglish ? 'ESP32 Status' : 'ESP32 状态' }}</text>
+					<text class="status-card-time">{{ store.status.lastSeenText }}</text>
+				</view>
+				<text class="status-card-desc" :class="{ online: store.status.esp32Online }">
+					{{ store.status.esp32Online 
+						? (lang.isEnglish ? 'Online - Device Connected' : '在线 - 设备已连接') 
+						: (lang.isEnglish ? 'Offline - Device Disconnected' : '离线 - 设备断开') }}
+				</text>
+			</view>
+		</view>
+
+		<!-- 2. 传感器网格 (修改 icon 值为对应的文件名) -->
+		<view class="sensor-grid">
+			<!-- 温度 -->
+			<SensorCard 
+				:title="lang.isEnglish ? 'Temperature' : '温度'"
+				:value="store.sensors.temperature" unit="℃" 
+				icon="temp" color="#22c55e" :time="store.status.lastSeenText" 
+			/>
+			<!-- 湿度 -->
+			<SensorCard 
+				:title="lang.isEnglish ? 'Humidity' : '湿度'"
+				:value="store.sensors.humidity" unit="%" 
+				icon="hum" color="#3b82f6" :time="store.status.lastSeenText" 
+			/>
+			<!-- 二氧化碳 -->
+			<SensorCard 
+				:title="lang.isEnglish ? 'CO2 Level' : '二氧化碳浓度'"
+				:value="store.sensors.CO2" unit="ppm" 
+				icon="co2" color="#0ea5e9" :time="store.status.lastSeenText" 
+			/>
+			<!-- 光照强度 -->
+			<SensorCard 
+				:title="lang.isEnglish ? 'Light Intensity' : '光照强度'"
+				:value="store.sensors.lux" unit="Lux" 
+				icon="lux" color="#f59e0b" :time="store.status.lastSeenText" 
+			/>
+			<!-- 氨气 (新增，匹配商用图) -->
+			<SensorCard 
+				:title="lang.isEnglish ? 'NH3 (Ammonia)' : '氨气 (NH3)'"
+				:value="store.sensors.NH3" unit="ppm" 
+				icon="nh3" color="#f43f5e" :time="store.status.lastSeenText" 
+			/>
+			<!-- 土壤湿度 (新增) -->
+			<SensorCard 
+				:title="lang.isEnglish ? 'Soil Moisture' : '土壤湿度'"
+				:value="store.sensors.soilHumidity" unit="%" 
+				icon="soil" color="#8b5cf6" :time="store.status.lastSeenText" 
+			/>
+		</view>
+
+		<!-- 3. 蚕数据卡片 -->
+		<view class="silkworm-card">
+			<view class="sw-header">
+				<view class="sw-title-row">
+					<view class="sw-icon-box">
+						<image src="/static/icons/silk.png" mode="aspectFit" class="sw-icon-img"></image>
+					</view>
+					<text class="sw-title">{{ lang.isEnglish ? 'Silkworm Status' : '蚕状态监测' }}</text>
+				</view>
+			</view>
+			<view class="sw-grid">
+				<view class="sw-item">
+					<text class="sw-label">{{ lang.isEnglish ? 'Total' : '总数' }}</text>
+					<text class="sw-value" style="color: #0f172a">{{ store.sensors.Silkworm_Total }}</text>
+				</view>
+				<view class="sw-item">
+					<text class="sw-label">{{ lang.isEnglish ? 'Healthy' : '健康' }}</text>
+					<text class="sw-value" style="color: #10b981">{{ store.sensors.Silkworm_Healthy }}</text>
+				</view>
+				<view class="sw-item">
+					<text class="sw-label">{{ lang.isEnglish ? 'Sick' : '病蚕' }}</text>
+					<text class="sw-value" style="color: #ef4444">{{ store.sensors.Silkworm_Sick }}</text>
+				</view>
+				<view class="sw-item">
+					<text class="sw-label">{{ lang.isEnglish ? 'Dormant' : '眠期' }}</text>
+					<text class="sw-value" style="color: #f59e0b">{{ store.sensors.Silkworm_Sleep }}</text>
+				</view>
+			</view>
+		</view>
+		<AlertPopup />
+	</view>
+</template>
+
+<script setup lang="ts">
+import { ref, watch } from 'vue';
+import { deviceStore as store } from '@/store/device';
+import SensorCard from '@/components/SensorCard.vue';
+import { langStore as lang } from '@/store/lang';
+import AlertPopup from '@/components/AlertPopup.vue';
+
+const statusBarHeight = ref(20);
+const sysInfo = uni.getSystemInfoSync();
+statusBarHeight.value = sysInfo.statusBarHeight || 20;
+
+// 卡片点击状态（模拟 hover 效果）
+const isCardPressed = ref(false);
+const onCardTap = () => {
+	// 点击卡片可以刷新状态
+	store.fetchOnlineStatus();
+};
+
+const updateLang = () => {
+	const isEn = lang.isEnglish;
+	uni.setTabBarItem({ index: 0, text: isEn ? 'Overview' : '总览' });
+	uni.setTabBarItem({ index: 1, text: isEn ? 'Controls' : '控制' });
+	uni.setTabBarItem({ index: 2, text: isEn ? 'History' : '历史' });
+	uni.setTabBarItem({ index: 3, text: isEn ? 'Logs' : '日志' });
+};
+updateLang();
+watch(() => lang.isEnglish, updateLang);
+</script>
+
+<style lang="scss">
+.page-container {
+	padding: 40rpx 30rpx;
+	background-color: #f1f5f9;
+	min-height: 100vh;
+	.header-section {
+		margin-bottom: 40rpx;
+		.header-top {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 10rpx;
+		}
+		.main-title {
+			font-size: 48rpx;
+			font-weight: 800;
+			color: #0f172a;
+			display: block;
+		}
+		.sub-title {
+			font-size: 24rpx;
+			color: #94a3b8;
+		}
+	}
+}
+.lang-toggle {
+	width: 88rpx;
+	height: 44rpx;
+	border-radius: 22rpx;
+	background: #e2e8f0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.lang-text {
+	font-size: 22rpx;
+	font-weight: 600;
+	color: #475569;
+}
+/* Uiverse.io 风格状态卡片 */
+.status-card {
+	width: 100%;
+	height: 140rpx;
+	background: #353535;
+	border-radius: 40rpx;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	margin-bottom: 30rpx;
+	transition: transform 0.5s ease-in-out;
+	&.pressed {
+		transform: scale(1.05);
+	}
+}
+.status-card-img {
+	width: 100rpx;
+	height: 100rpx;
+	margin-left: 20rpx;
+	border-radius: 20rpx;
+	background: linear-gradient(#d7cfcf, #9198e5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background 0.5s ease-in-out;
+	&.online {
+		background: linear-gradient(#10b981, #9198e5);
+	}
+	&.pressed {
+		background: linear-gradient(#9198e5, #712020);
+	}
+}
+.status-dot {
+	width: 40rpx;
+	height: 40rpx;
+	border-radius: 50%;
+	background: #ef4444;
+	box-shadow: 0 0 16rpx rgba(239, 68, 68, 0.6);
+	transition: all 0.3s;
+	&.online {
+		background: #10b981;
+		box-shadow: 0 0 16rpx rgba(16, 185, 129, 0.6);
+	}
+}
+.status-card-textBox {
+	width: calc(100% - 180rpx);
+	margin-left: 20rpx;
+	color: #fff;
+}
+.status-card-textContent {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+.status-card-title {
+	font-size: 32rpx;
+	font-weight: bold;
+	color: #fff;
+}
+.status-card-time {
+	font-size: 20rpx;
+	color: #94a3b8;
+}
+.status-card-desc {
+	font-size: 24rpx;
+	font-weight: lighter;
+	color: #ef4444;
+	margin-top: 8rpx;
+	display: block;
+	&.online {
+		color: #10b981;
+	}
+}
+.sensor-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20rpx;
+}
+.silkworm-card {
+	background: #fff;
+	border-radius: 24rpx;
+	padding: 30rpx;
+	margin-top: 20rpx;
+	box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04), 0 8rpx 24rpx rgba(0,0,0,0.03);
+}
+.sw-header {
+	margin-bottom: 24rpx;
+}
+.sw-title-row {
+	display: flex;
+	align-items: center;
+	gap: 12rpx;
+}
+.sw-icon-box {
+	width: 68rpx;
+	height: 68rpx;
+	border-radius: 20rpx;
+	background: rgba(245, 158, 11, 0.1);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.sw-icon-img {
+	width: 38rpx;
+	height: 38rpx;
+}
+.sw-title {
+	font-size: 28rpx;
+	font-weight: 700;
+	color: #0f172a;
+}
+.sw-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+	gap: 16rpx;
+}
+.sw-item {
+	text-align: center;
+	padding: 16rpx 0;
+}
+.sw-label {
+	font-size: 22rpx;
+	color: #94a3b8;
+	display: block;
+	margin-bottom: 8rpx;
+}
+.sw-value {
+	font-size: 40rpx;
+	font-weight: 700;
+}
+</style>
