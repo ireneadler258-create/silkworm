@@ -1,4 +1,4 @@
-﻿# Silkworm Smart Farming IoT System
+# Silkworm Smart Farming IoT System
 
 > 蚕养殖智能监控系统 — ESP32-S3 边缘网关 · K230 AI 视觉识别 · 跨平台 App
 
