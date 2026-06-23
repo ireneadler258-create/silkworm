@@ -5,7 +5,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/ireneadler258-create/silkworm)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**端到端物联网智能蚕养殖解决方案**，集边缘 AI 推理、多传感器环境监测、自动环境调控、云端遥测、移动端 App 控制于一体。
+**端到端物联网智能蚕养殖解决方案**，集边缘 AI 推理、多传感器环境监测、自动环境调控、云端遥测、跨平台 App 控制于一体。
 
 ---
 
@@ -41,7 +41,8 @@
 - **手动模式**：通过 App 远程控制执行器
 - **动态阈值**：支持 App 实时调整阈值参数
 
-### 📱 跨平台 App
+### 📱 跨平台 App (uni-app)
+- **多端支持**：H5 / 微信小程序 / Android / iOS / 鸿蒙
 - **实时监控**：传感器数据实时展示
 - **历史趋势**：折线图分析环境变化
 - **告警推送**：异常状态即时通知
@@ -118,7 +119,7 @@ silkworm/
 │   ├── K230/                        #    K230 AI 代码
 │   └── docs/                        #    文档
 │
-├── miniprogram/                     # 📱 微信小程序
+├── miniprogram/                     # 📱 跨平台 App (uni-app)
 │   ├── src/
 │   │   ├── pages/                   #    页面
 │   │   ├── store/                   #    状态管理
