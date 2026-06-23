@@ -102,7 +102,7 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "YOUR_WECHAT_APPID",
+        "appid" : "wx29147e3fa3b0c878",
         "setting" : {
             "urlCheck" : false
         },

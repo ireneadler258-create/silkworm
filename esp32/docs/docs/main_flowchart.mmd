@@ -1,0 +1,66 @@
+%%{init: {'flowchart': {'curve': 'linear'}}}%%
+flowchart TB
+
+    %% 样式定义
+    classDef start fill:#e3f2fd,stroke:#01579b,stroke-width:2px,rx:5,ry:5
+    classDef proc fill:#fff3e0,stroke:#e65100,stroke-width:1px
+    classDef dec fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px
+    classDef io fill:#fce4ec,stroke:#880e4f,stroke-width:1px
+    classDef sub fill:#f3e5f5,stroke:#4a148c,stroke-width:1px
+
+    subgraph INIT["系统初始化"]
+        S["系统上电"]:::start --> D["延时5秒"]:::proc --> G["初始化看门狗<br/>Guardian"]:::proc
+        G --> W["初始化WiFi"]:::io --> M["初始化MQTT"]:::io
+        M --> A["初始化执行器"]:::proc --> I["初始化IR传感器"]:::proc
+        I --> C["创建SmartController"]:::proc --> V["初始化语音报警"]:::proc
+        V --> P["打印启动信息"]:::io --> L(("进入主循环")):::start
+    end
+
+    subgraph LOOP["主循环"]
+        L --> F["1. 喂狗"]:::proc
+        F --> N{"2. WiFi正常?"}:::dec
+        N -->|否| S1["跳过MQTT"]:::proc
+        N -->|是| K["3. 检查MQTT消息"]:::io
+        K --> Q{"4. 收到指令?"}:::dec
+        Q -->|是| B["5. MQTT回调处理"]:::sub
+        Q -->|否| R["6. 读取快速传感器"]:::proc
+        B --> T["6. 回发状态"]:::io --> R
+        R --> U["7. 智能控制"]:::sub
+        U --> S{"状态获取"}:::proc --> Lg["9. 打印日志"]:::io
+        S --> Lg
+        Lg --> Va["10. 语音报警"]:::sub
+        Va --> Tm{"11. 时间检查"}:::dec
+        Tm --> Rpt{"12. 满足上报?"}:::dec
+        Rpt -->|否| Sl["14. 休眠计算"]:::proc
+        Rpt -->|是| Rs["13. 读取慢速传感器"]:::proc
+        Rs --> Dk["14. 构建数据包"]:::proc --> Pb["15. 发布数据"]:::io
+        Pb --> Ut["16. 更新时间"]:::proc --> Sl
+        Sl --> LoopEnd[("返回循环")]:::start --> F
+    end
+
+    subgraph CALLBACK["MQTT回调"]
+        CB(("回调触发")):::start --> CD["解码Topic/Msg"]:::proc
+        CD --> CJ["JSON解析"]:::proc --> COk{"成功?"}:::dec
+        COk -->|否| CE["记录错误"]:::io --> CEnd(("结束"))
+        COk -->|是| CP["提取params"]:::proc --> CT{"命令类型"}:::dec
+        CT -->|Mode| CM["设置模式"]:::proc --> CEnd
+        CT -->|Thresh| CU["更新阈值"]:::proc --> CEnd
+        CT -->|Act| CA["控制执行器"]:::proc --> CEnd
+    end
+
+    subgraph EXCEPT["异常处理"]
+        X{"异常捕获"}:::dec -->|KeyInt| XD["断开连接"]:::proc --> XE(("退出"))
+        X -->|Exception| XL["错误日志"]:::io --> XS["延时1秒"]:::proc --> F
+    end
+
+    %% 连接回调
+    B -.-> CALLBACK
+
+    %% 连接异常
+    L -.-> EXCEPT
+
+    %% 样式区域
+    style INIT fill:#fff8e1,stroke:#e65100,stroke-width:3px
+    style LOOP fill:#e8f5e9,stroke:#1b5e20,stroke-width:3px
+    style CALLBACK fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    style EXCEPT fill:#ffebee,stroke:#b71c1c,stroke-width:2px

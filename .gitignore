@@ -1,30 +1,61 @@
-# Datasets - large training data (not included)
-datasets/
-runs/
-sample_visualizations/
+# ============ AI Training ============
+# Datasets - large training data
+ai/datasets/
+ai/runs/
+ai/sample_visualizations/
+ai/silkworm_project/
 
-# Model weights (optional - add to ignore if large)
+# Model weights (large files)
 *.pt
-
-# K230 model files
+*.onnx
 *.kmodel
 
 # IDE
 .idea/
 .vscode/
 *.iml
+inspectionProfiles/
 
+# ============ ESP32 ============
+# Config files with real credentials
+esp32/config.py
+
+# ============ Miniprogram ============
+# Dependencies
+miniprogram/node_modules/
+miniprogram/unpackage/
+miniprogram/dist/
+
+# Config files with real credentials
+miniprogram/src/store/device.ts
+miniprogram/src/api/aliyun.ts
+
+# ============ General ============
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# UniApp
-node_modules/
-unpackage/
+*.egg-info/
+.eggs/
 dist/
-*.local
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo

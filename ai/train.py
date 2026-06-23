@@ -11,7 +11,7 @@ def train_silkworm_optimized():
         batch=8,
         device=0,
         project="silkworm_project",
-        name="health_detect_optimized_v2",  # 换个新名字避免混淆
+        name="health_detect_optimized_v2",
         pretrained=True,
         optimizer="AdamW",
         lr0=0.001,

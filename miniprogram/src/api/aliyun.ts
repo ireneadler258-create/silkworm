@@ -1,8 +1,8 @@
 import CryptoJS from 'crypto-js';
 
 // 阿里云 IoT API 配置 (请替换为实际值)
-const AccessKeyId = 'YOUR_ACCESS_KEY_ID';
-const AccessKeySecret = 'YOUR_ACCESS_KEY_SECRET';
+const AccessKeyId = 'your_access_key_id';
+const AccessKeySecret = 'your_access_key_secret';
 
 /** URL 编码（保留 ~ 不编码） */
 function specialEncode(str: string) {
